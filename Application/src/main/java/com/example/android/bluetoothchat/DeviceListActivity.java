@@ -18,10 +18,12 @@ package com.example.android.bluetoothchat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -29,11 +31,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -87,6 +91,30 @@ public class DeviceListActivity extends Activity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 doDiscoveryAskingForPermission();
+                v.setVisibility(View.GONE);
+            }
+        });
+
+        // Initialize the button to input mac
+        Button inputMacButton = (Button) findViewById(R.id.button_input_mac);
+        inputMacButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(DeviceListActivity.this);
+                builder.setTitle("Connect to MAC");
+                final EditText editText = new EditText(DeviceListActivity.this);
+                builder.setView(editText);
+                builder.setPositiveButton("Connect", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String address = editText.getText().toString();
+                        Intent intent = new Intent();
+                        intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
+                        setResult(Activity.RESULT_OK, intent);
+                        finish();
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
                 v.setVisibility(View.GONE);
             }
         });

@@ -364,6 +364,7 @@ public class BluetoothChatFragment extends Fragment {
         // Get the device MAC address
         String address = data.getExtras()
                 .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+//        address = "78:F8:82:56:C5:66";
         // Get the BluetoothDevice object
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         // Attempt to connect to the device
