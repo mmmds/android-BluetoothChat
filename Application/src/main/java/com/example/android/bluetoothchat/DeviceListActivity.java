@@ -16,6 +16,7 @@
 
 package com.example.android.bluetoothchat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,7 +24,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -48,6 +53,8 @@ public class DeviceListActivity extends Activity {
      * Tag for Log
      */
     private static final String TAG = "DeviceListActivity";
+
+    private static final int PERMISSION_CODE = 111;
 
     /**
      * Return Intent extra
@@ -79,7 +86,7 @@ public class DeviceListActivity extends Activity {
         Button scanButton = (Button) findViewById(R.id.button_scan);
         scanButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                doDiscovery();
+                doDiscoveryAskingForPermission();
                 v.setVisibility(View.GONE);
             }
         });
@@ -137,6 +144,28 @@ public class DeviceListActivity extends Activity {
 
         // Unregister broadcast listeners
         this.unregisterReceiver(mReceiver);
+    }
+
+    private void doDiscoveryAskingForPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Asking for permission");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_CODE);
+        } else {
+            Log.d(TAG, "Permission already granted");
+            doDiscovery();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission granted");
+                doDiscovery();
+                return;
+            }
+        }
+        Log.d(TAG, "Permission not granted");
     }
 
     /**
